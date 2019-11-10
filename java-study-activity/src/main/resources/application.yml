@@ -1,2 +1,17 @@
 server:
   port: 8081
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/activity?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  activiti:
+    database-schema-update: true
+    history-level: full
+    check-process-definitions: false #自动检查、部署流程定义文件
+    db-identity-used: false
