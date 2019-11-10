@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!--当前应用名称，名称要在整个分布式架构中唯一，以及应用的一些参数配置-->
+    <dubbo:application name="provider" owner="codeshop">
+        <dubbo:parameter key="qos.enable" value="true"/>
+        <dubbo:parameter key="qos.accept.foreign.ip" value="false"/>
+        <dubbo:parameter key="qos.port" value="55555"/>
+    </dubbo:application>
+
+    <!--监控中心的配置-->
+    <dubbo:monitor protocol="registry"/>
+
+    <!--注册中心的配置信息，N/A 表示由 dubbo 自动分配地址。或者说是一种直连的方式，不通过注册中心-->
+<!--    <dubbo:registry address="N/A"/>-->
+    <!--register="false"可以让服务提供者开发方，只订阅服务(开发的服务可能依赖其它服务)，而不注册正在开发的服务-->
+    <dubbo:registry address="zookeeper://localhost:2181" check="false" protocol="zookeeper"/>
+
+    <!--服务发布时dubbo依赖什么协议，可以配置 dubbo、webservice、Thrift、hessian、http等协议-->
+    <dubbo:protocol name="dubbo" port="20880"/>
+
+    <!--dubbo服务发布的配置，配置要发布的服务，ref代表服务实现类的bean-->
+    <dubbo:service cluster="failover" retries="2" interface="com.codeshop.dubbo.provider.service.ProviderService" ref="providerService"/>
+
+    <!--Bean定义-->
+    <bean id="providerService" class="com.codeshop.dubbo.provider.service.impl.ProviderServiceImpl"/>
+</beans>

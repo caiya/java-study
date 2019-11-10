@@ -1,0 +1,7 @@
+server:
+  port: ${server.port} # 应用端口
+com:
+  codeshop:
+    author:
+      name: Coding杂货铺
+      email: caiya928@aliyun.com

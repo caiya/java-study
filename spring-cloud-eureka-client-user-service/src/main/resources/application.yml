@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: eureka-client-user-service
+server:
+  port: 8081
+eureka:
+  client:
+    service-url:
+      defaultZone: http://codeshop:codeshop@localhost:8761/eureka/
+    enabled: true # 自动注册
+  instance:
+    prefer-ip-address: true # 采用ip进行注册
+    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${server.port}

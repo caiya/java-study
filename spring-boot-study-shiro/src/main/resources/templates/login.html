@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+</head>
+<body>
+<div>
+    用户：<input id="userName" name="userName" value="">
+</div>
+<div>
+    密码：<input id="password" name="password" value="">
+</div>
+<div>
+    <input type="button" id="btnSave" value="登录">
+</div>
+<script src="https://cdn.bootcss.com/jquery/1.11.3/jquery.js"></script>
+<script>
+    $(function () {
+        $("#btnSave").click(function () {
+            var userName = $("#userName").val();
+            var password = $("#password").val();
+            $.post('/login', {
+                    userName: userName,
+                    password: password
+                }, function (result) {
+                    console.log('result', result);
+                    if (result.code == 0) {
+                        window.location = "/index"
+                    } else {
+                        alert(result.msg);
+                    }
+                }
+            )
+        });
+    });
+</script>
+</body>
+</html>

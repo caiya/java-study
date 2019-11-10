@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.codeshop.dynamicdb.dao.UserDao">
+    <resultMap id="baseResultMap" type="UserDO">
+        <id column="id" property="id"/>
+        <result column="user_name" property="userName"/>
+        <result column="password" property="password"/>
+        <result column="last_login_time" property="lastLoginTime"/>
+        <result column="sex" property="sex"/>
+    </resultMap>
+    <select id="get" resultMap="baseResultMap">
+        select t_user.id,
+               t_user.user_name,
+               t_user.password,
+               t_user.sex,
+               t_user.last_login_time
+        from t_user
+        where t_user.id = #{value}
+    </select>
+    <insert id="save" parameterType="com.codeshop.dynamicdb.domain.UserDO" useGeneratedKeys="true" keyProperty="id">
+        insert into t_user(`user_name`,
+                           `password`,
+                           `last_login_time`,
+                           `sex`)
+        values (#{userName}, #{password}, #{lastLoginTime}, #{sex})
+    </insert>
+    <update id="update" parameterType="com.codeshop.dynamicdb.domain.UserDO">
+        update t_user
+        <set>
+            <if test="userName != null and userName != ''">user_name = #{userName}</if>
+            <if test="password != null and password != ''">password = #{password}</if>
+            <if test="lastLoginTime != null and lastLoginTime != ''">last_login_time = #{lastLoginTime}</if>
+            <if test="sex != null and sex != ''">sex = #{sex}</if>
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="remove">
+        delete
+        from t_user
+        where id = #{value}
+    </delete>
+    <delete id="batchRemove">
+        delete from t_user where id in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

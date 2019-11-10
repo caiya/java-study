@@ -1,0 +1,14 @@
+server:
+  port: ${server.port} # 应用端口
+com:
+  codeshop:
+    author:
+      name: Coding杂货铺
+      email: caiya928@aliyun.com
+spring:
+  mvc:
+    # 方法不存在时直接抛出异常
+    throw-exception-if-no-handler-found: true
+  resources:
+    # 不要为工程中的资源文件建立映射
+    add-mappings: false

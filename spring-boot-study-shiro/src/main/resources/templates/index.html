@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录成功后跳转的首页</title>
+</head>
+<body>
+    <h1>欢迎您：[[${userName}]]</h1>
+    <a href="/user/add" shiro:hasPermission="system:users:add">添加用户</a>
+    <a href="/user/list" shiro:hasPermission="system:users:list">用户列表</a>
+    <a href="/user/remove" shiro:hasPermission="system:users:remove">删除用户</a>
+    <a href="/user/edit" shiro:hasPermission="system:users:edit">编辑用户</a>
+    <a href="/user/noauth" shiro:hasPermission="system:users:noauth">需要权限：system:users:noauth 才会显示</a>
+    <a href="/logout">退出</a>
+</body>
+</html>

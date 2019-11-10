@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.codeshop.mybatis.dao.UserDao">
+    <resultMap id="baseResultMap" type="UserDO">
+        <id column="id" property="id"/>
+        <result column="user_name" property="userName"/>
+        <result column="password" property="password"/>
+        <result column="last_login_time" property="lastLoginTime"/>
+        <result column="sex" property="sex"/>
+        <!-- column为当前User的主键id -->
+        <collection property="articles" ofType="ArticleDO">
+            <!-- 这里的article_id对应下方查询结果的article_id，这里的column对应的是下面查询的别名，而不是表字段名 -->
+            <id column="article_id" property="id"/>
+            <id column="title" property="title"/>
+            <id column="content" property="content"/>
+            <id column="user_id" property="userId"/>
+        </collection>
+
+        <collection property="subjects" ofType="SubjectDO">
+            <id column="subject_id" property="id"/>
+            <id column="subject_name" property="name"/>
+
+            <collection property="users" ofType="UserDO">
+                <id column="id" property="id"/>
+                <result column="user_name" property="userName"/>
+                <result column="password" property="password"/>
+                <result column="last_login_time" property="lastLoginTime"/>
+                <result column="sex" property="sex"/>
+            </collection>
+        </collection>
+    </resultMap>
+    <select id="get" resultMap="baseResultMap">
+        select t_user.id,
+               t_user.user_name,
+               t_user.password,
+               t_user.sex,
+               t_user.last_login_time,
+               t_article.id   as article_id,
+               t_article.title,
+               t_article.content,
+               t_article.create_time,
+               t_article.user_id,
+               t_subject.id   as subject_id,
+               t_subject.name as subject_name
+        from t_user
+                 left join t_article on t_user.id = t_article.user_id
+                 left join t_user_subject on t_user.id = t_user_subject.user_id
+                 left join t_subject on t_subject.id = t_user_subject.subject_id
+        where t_user.id = #{value}
+    </select>
+
+    <select id="list" resultMap="baseResultMap" parameterType="com.codeshop.mybatis.domain.dto.UserDTO">
+        select t_user.*, t_article.id as article_id, t_article.title, t_article.content, t_article.create_time,
+        t_article.user_id,
+        t_subject.id as subject_id,
+        t_subject.name as subject_name from (select t_user.id, t_user.user_name, t_user.password, t_user.sex, t_user.last_login_time
+        from t_user
+        <where>
+            <if test="userName != null and userName != ''">and t_user.user_name = #{userName}</if>
+            <if test="sex != null and sex != ''">and t_user.sex = #{sex}</if>
+        </where>
+        <choose>
+            <when test="sort != null and sort.trim() != null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t_user.id desc
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+        ) t_user
+        left join t_article on t_user.id = t_article.user_id
+        left join t_user_subject on t_user.id = t_user_subject.user_id
+        left join t_subject on t_subject.id = t_user_subject.subject_id
+        <choose>
+            <when test="sort != null and sort.trim() != null">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by t_user.id desc
+            </otherwise>
+        </choose>
+    </select>
+    <select id="count" resultType="int">
+        select count(*) from t_user
+        <where>
+            <if test="id != null and id != '-1'">and id = #{id}</if>
+            <if test="userName != null and userName != ''">and user_name = #{userName}</if>
+            <if test="password != null and password != ''">and password = #{password}</if>
+            <if test="sex != null and sex != ''">and sex = #{sex}</if>
+        </where>
+    </select>
+    <insert id="save" parameterType="com.codeshop.mybatis.domain.UserDO" useGeneratedKeys="true" keyProperty="id">
+        insert into t_user(`user_name`,
+                           `password`,
+                           `last_login_time`,
+                           `sex`)
+        values (#{userName}, #{password}, #{lastLoginTime}, #{sex})
+    </insert>
+    <update id="update" parameterType="com.codeshop.mybatis.domain.UserDO">
+        update t_user
+        <set>
+            <if test="userName != null and userName != ''">user_name = #{userName}</if>
+            <if test="password != null and password != ''">password = #{password}</if>
+            <if test="lastLoginTime != null and lastLoginTime != ''">last_login_time = #{lastLoginTime}</if>
+            <if test="sex != null and sex != ''">sex = #{sex}</if>
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="remove">
+        delete
+        from t_user
+        where id = #{value}
+    </delete>
+    <delete id="batchRemove">
+        delete from t_user where id in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 以下是使用resultType形式实现，更推荐使用resultMap -->
+    <!--    <select id="get" resultType="com.codeshop.mybatis.domain.UserDO">-->
+    <!--        select `id`,`user_name`,`password`,`last_login_time`,`sex` from t_user where id = #{value}-->
+    <!--    </select>-->
+
+    <!--    <select id="list" resultType="com.codeshop.mybatis.domain.UserDO">-->
+    <!--        select `id`,`user_name`,`password`,`last_login_time`,`sex` from t_user-->
+    <!--        <where>-->
+    <!--            <if test="id != null and id != '-1'"> and id = #{id} </if>-->
+    <!--            <if test="userName != null and userName != ''"> and user_name = #{userName} </if>-->
+    <!--            <if test="password != null and password != ''"> and password = #{password} </if>-->
+    <!--            <if test="lastLoginTime != null and lastLoginTime != ''"> and last_login_time = #{lastLoginTime} </if>-->
+    <!--            <if test="sex != null and sex != ''"> and sex = #{sex} </if>-->
+    <!--        </where>-->
+    <!--        <choose>-->
+    <!--            <when test="sort != null and sort.trim() != null">-->
+    <!--                order by ${sort} ${order}-->
+    <!--            </when>-->
+    <!--            <otherwise>-->
+    <!--                order by id desc-->
+    <!--            </otherwise>-->
+    <!--        </choose>-->
+    <!--        <if test="offset != null and limit != null">-->
+    <!--            limit #{offset}, #{limit}-->
+    <!--        </if>-->
+    <!--    </select>-->
+    <!--    <select id="count" resultType="int">-->
+    <!--        select count(*) from t_user-->
+    <!--        <where>-->
+    <!--            <if test="id != null and id != '-1'"> and id = #{id} </if>-->
+    <!--            <if test="userName != null and userName != ''"> and user_name = #{userName} </if>-->
+    <!--            <if test="password != null and password != ''"> and password = #{password} </if>-->
+    <!--            <if test="sex != null and sex != ''"> and sex = #{sex} </if>-->
+    <!--        </where>-->
+    <!--    </select>-->
+    <!--    <insert id="save" parameterType="com.codeshop.mybatis.domain.UserDO" useGeneratedKeys="true" keyProperty="id">-->
+    <!--        insert into t_user(-->
+    <!--            `user_name`,-->
+    <!--            `password`,-->
+    <!--            `last_login_time`,-->
+    <!--            `sex`-->
+    <!--        ) values (-->
+    <!--            #{userName}, #{password}, #{lastLoginTime}, #{sex}-->
+    <!--        )-->
+    <!--    </insert>-->
+    <!--    <update id="update" parameterType="com.codeshop.mybatis.domain.UserDO">-->
+    <!--        update t_user-->
+    <!--        <set>-->
+    <!--            <if test="userName != null and userName != ''">  user_name = #{userName} </if>-->
+    <!--            <if test="password != null and password != ''">  password = #{password} </if>-->
+    <!--            <if test="lastLoginTime != null and lastLoginTime != ''"> last_login_time = #{lastLoginTime} </if>-->
+    <!--            <if test="sex != null and sex != ''"> sex = #{sex} </if>-->
+    <!--        </set>-->
+    <!--        where id = #{id}-->
+    <!--    </update>-->
+    <!--    <delete id="remove">-->
+    <!--        delete from t_user where id = #{value}-->
+    <!--    </delete>-->
+    <!--    <delete id="batchRemove">-->
+    <!--        delete from t_user where id in-->
+    <!--        <foreach collection="array" item="id" open="(" close=")" separator=",">-->
+    <!--            #{id}-->
+    <!--        </foreach>-->
+    <!--    </delete>-->
+</mapper>

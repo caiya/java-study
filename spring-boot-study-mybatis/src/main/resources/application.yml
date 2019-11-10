@@ -1,0 +1,18 @@
+server:
+  port: 8086
+  servlet:
+    context-path: /api
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: mybatis/**/*Mapper.xml
+  type-aliases-package: com.codeshop.**.domain
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/test?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false
+    username: root
+    password: root
+logging:
+  level:
+    com.codeshop.mybatis.dao: debug

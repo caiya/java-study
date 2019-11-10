@@ -1,0 +1,36 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: eureka-client-article-service
+eureka:
+  client:
+    service-url:
+      defaultZone: http://codeshop:codeshop@localhost:8761/eureka/
+    enabled: true
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${server.port}
+ribbon:
+  eager-load:
+    # 开启ribbon的饥饿加载模式，防止首次请求（因为需要初始化）超时
+    enabled: true
+    # 指定初始化的服务
+    clients: eureka-client-user-service
+logging:
+  level:
+    # 开启feign的日志打印
+    com.codeshop.eureka.service.UserRemoteService: debug
+feign:
+  # 请求响应压缩
+  compression:
+    request:
+      enabled: true
+    response:
+      enabled: true
+  httpclient:
+    enabled: false # 关闭自带的URLConnection，使用okHttp代替
+  okhttp:
+    enabled: true
