@@ -2,6 +2,7 @@ package com.codeshop.activity.controller;
 
 import com.codeshop.activity.entity.dto.LeaveDTO;
 import com.codeshop.activity.util.FlowUtils;
+import org.activiti.engine.IdentityService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.runtime.ProcessInstance;
@@ -14,6 +15,7 @@ import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
+import java.util.*;
 
 @RestController
 @RequestMapping("/user")
@@ -26,11 +28,16 @@ public class DemoController {
     private TaskService taskService;
 
     @Resource
+    private IdentityService identityService;
+
+    @Resource
     private FlowUtils flowUtils;
 
     @Transactional
     @PostMapping(value = "/leave")
     public Object startProcess(@RequestBody LeaveDTO leaveDTO) {
+        // 设置流程启动人
+        identityService.setAuthenticatedUserId(String.valueOf(leaveDTO.getUserId()));
         // 业务校验（省略）
         // 设置流程上下文数据（省略）
         // 开启流程
@@ -40,7 +47,10 @@ public class DemoController {
         Task task = taskService.createTaskQuery().processInstanceId(processInstanceId).singleResult();
 
         // 完成任务
-        taskService.complete(task.getId());
+        // 指定处理人
+        Map<String, Object> map = new HashMap<>();
+        map.put("userId", 2);
+        taskService.complete(task.getId(), map);
         return true;
     }
 
@@ -56,8 +66,21 @@ public class DemoController {
 
     @GetMapping(value = "/task/{assignee}")
     public Object findAllTask(@PathVariable String assignee) {
-        return taskService.createTaskQuery().orderByTaskCreateTime().desc()
+        List<Task> taskList = taskService.createTaskQuery().orderByTaskCreateTime().desc()
                 .taskCandidateOrAssigned(assignee)
                 .list();
+        List<Map<String, Object>> list = new LinkedList<>();
+        for (Task task: taskList) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", task.getId());
+            map.put("name", task.getName());
+            map.put("owner", task.getOwner());
+            map.put("assignee", task.getAssignee());
+            map.put("dueDate", task.getDueDate());
+            map.put("processDefinitionId", task.getProcessDefinitionId());
+            map.put("processInstanceId", task.getProcessInstanceId());
+            list.add(map);
+        }
+        return list;
     }
 }

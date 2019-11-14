@@ -4,7 +4,7 @@
     <startEvent id="start" name="开始"/>
     <endEvent id="_2" name="结束"/>
     <userTask activiti:exclusive="true" id="_3" name="填写申请"/>
-    <userTask activiti:exclusive="true" id="_4" name="班主任审批"/>
+    <userTask activiti:assignee="#{userId}" activiti:exclusive="true" id="_4" name="班主任审批"/>
     <sequenceFlow id="_5" sourceRef="start" targetRef="_3"/>
     <sequenceFlow id="_6" sourceRef="_3" targetRef="_4"/>
     <sequenceFlow id="_7" sourceRef="_4" targetRef="_2"/>
