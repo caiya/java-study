@@ -9,5 +9,5 @@ import java.lang.annotation.*;
 @Import({ProxyRegister.class})
 @Documented
 public @interface EnableProxy {
-    String basePackage() default "";
+    String[] basePackages() default "";
 }

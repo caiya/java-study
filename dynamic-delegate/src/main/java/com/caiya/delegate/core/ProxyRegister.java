@@ -1,30 +1,22 @@
 package com.caiya.delegate.core;
 
-import com.caiya.delegate.DynamicDelegateApplication;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.util.StringUtils;
+import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
+import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.type.AnnotationMetadata;
 
-public class ProxyRegister implements BeanDefinitionRegistryPostProcessor {
+import java.util.Map;
+
+public class ProxyRegister implements ImportBeanDefinitionRegistrar {
 
     @Override
-    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) throws BeansException {
-        boolean annotationPresent = DynamicDelegateApplication.class.isAnnotationPresent(EnableProxy.class);
-        if (annotationPresent) {
-            EnableProxy annotation = DynamicDelegateApplication.class.getAnnotation(EnableProxy.class);
-            String basePackage = annotation.basePackage();
-            if (StringUtils.isEmpty(basePackage)) {
-                return;
-            }
-            ServiceInterfacesScanner scanner = new ServiceInterfacesScanner(beanDefinitionRegistry);
-            scanner.doScan(basePackage);
+    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+        Map<String, Object> annotationAttributes = importingClassMetadata.getAnnotationAttributes(EnableProxy.class.getName());
+        AnnotationAttributes attributes = AnnotationAttributes.fromMap(annotationAttributes);
+        if (attributes != null) {
+            String[] basePackages = attributes.getStringArray("basePackages");
+            ServiceInterfacesScanner scanner = new ServiceInterfacesScanner(registry);
+            scanner.doScan(basePackages);
         }
-    }
-
-    @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
-
     }
 }

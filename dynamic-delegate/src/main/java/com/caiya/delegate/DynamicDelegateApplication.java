@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@EnableProxy(basePackage = "com.caiya.delegate.service")
+@EnableProxy(basePackages = "com.caiya.delegate.service")
 public class DynamicDelegateApplication {
 
     public static void main(String[] args) {
